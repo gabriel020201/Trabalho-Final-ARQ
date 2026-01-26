@@ -1,11 +1,11 @@
 export class Rental {
-  public id; 
-  public carId: any; 
-  public userId: any; 
-  public startDate; 
-  public expectedReturnDate; 
-  public endDate; 
-  public total; 
+  public id;
+  public carId: any;
+  public userId: any;
+  public startDate;
+  public expectedReturnDate;
+  public endDate;
+  public total;
 
   constructor(
     id,

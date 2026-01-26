@@ -1,9 +1,9 @@
 export class Car {
-  public id: any; 
-  public name; 
-  public licensePlate: any; 
-  public available: string; 
-  public dailyRate; 
+  public id: any;
+  public name;
+  public licensePlate: any;
+  public available: string;
+  public dailyRate;
 
   constructor(
     id,
