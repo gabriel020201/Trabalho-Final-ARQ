@@ -1,14 +1,11 @@
-// Entidade Rental - Representa um aluguel no sistema
-// ERRO: Atributos com tipagem inconsistente
-
 export class Rental {
-  public id; // ERRO: falta tipagem
-  public carId: any; // ERRO: deveria ser string
-  public userId: any; // ERRO: deveria ser string
-  public startDate; // ERRO: falta tipagem Date
-  public expectedReturnDate; // ERRO: falta tipagem Date
-  public endDate; // ERRO: falta tipagem Date | null
-  public total; // ERRO: falta tipagem number | null
+  public id;
+  public carId: any;
+  public userId: any;
+  public startDate;
+  public expectedReturnDate;
+  public endDate;
+  public total;
 
   constructor(
     id,

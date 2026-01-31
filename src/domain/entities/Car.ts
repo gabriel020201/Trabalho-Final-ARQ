@@ -1,12 +1,9 @@
-// Entidade Car - Representa um veículo no sistema
-// ERRO: Falta tipagem correta e alguns atributos estão com tipos errados
-
 export class Car {
-  public id: any; // ERRO: deveria ser string
-  public name; // ERRO: falta tipagem
-  public licensePlate: any; // ERRO: deveria ser string
-  public available: string; // ERRO: deveria ser boolean
-  public dailyRate; // ERRO: falta tipagem
+  public id: any;
+  public name;
+  public licensePlate: any;
+  public available: string;
+  public dailyRate;
 
   constructor(
     id,
