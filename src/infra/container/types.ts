@@ -1,7 +1,5 @@
-
 export const TYPES = {
-  CarRepository: Symbol.for('CarRepository'),
-  
-  RenatlRepository: Symbol.for('RentalRepository'),
-  
+  ICarRepository: Symbol.for('ICarRepository'),
+  IRentalRepository: Symbol.for('IRentalRepository'),
+  CreateRentalUseCase: Symbol.for('CreateRentalUseCase')
 };

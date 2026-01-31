@@ -1,6 +1,3 @@
-// Testes unitários para CreateRentalUseCase
-// ERRO: Testes incompletos e mal estruturados
-
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CreateRentalUseCase } from './CreateRentalUseCase';
 import { InMemoryCarRepository } from '../../../infra/database/inMemory/InMemoryCarRepository';
@@ -15,54 +12,121 @@ describe('CreateRentalUseCase', () => {
   beforeEach(() => {
     carRepository = new InMemoryCarRepository();
     rentalRepository = new InMemoryRentalRepository();
-    
-    // ERRO: Instanciação manual sem usar injeção
-    createRentalUseCase = new CreateRentalUseCase(
-      carRepository,
-      rentalRepository
-    );
+    createRentalUseCase = new CreateRentalUseCase(carRepository, rentalRepository);
   });
 
-  // ERRO: Teste básico mas falta setup adequado do carro
-  it('should create a rental', () => {
-    // ERRO: Carro não está sendo criado com dados corretos
-    const car = new Car('car-1', 'Test Car', 'ABC-1234', 100, true);
-    carRepository.create(car);
+  function getFutureDate(daysAhead: number): Date {
+    const date = new Date();
+    date.setDate(date.getDate() + daysAhead);
+    return date;
+  }
 
-    const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + 2);  // 2 dias no futuro
+  it('should create a rental successfully', async () => {
+    const car = new Car('car-1', 'Honda Civic', 'ABC-1234', 150, true);
+    await carRepository.create(car);
 
-    const rental = createRentalUseCase.execute({
+    const rental = await createRentalUseCase.execute({
       userId: 'user-1',
       carId: 'car-1',
-      expectedReturnDate: futureDate
+      expectedReturnDate: getFutureDate(3)
     });
 
-    // ERRO: Assertion muito fraca
     expect(rental).toBeDefined();
+    expect(rental.carId).toBe('car-1');
+    expect(rental.userId).toBe('user-1');
+    expect(rental.id).toBeDefined();
   });
 
-  // ERRO: Teste para carro não encontrado mas não trata async
-  it('should throw error when car does not exist', () => {
-    const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + 2);
-
-    // ERRO: Não está usando expect(...).rejects para async
-    expect(() => {
+  it('should throw error when car does not exist', async () => {
+    await expect(
       createRentalUseCase.execute({
         userId: 'user-1',
-        carId: 'non-existent-car',
-        expectedReturnDate: futureDate
-      });
-    }).toThrow();
+        carId: 'nonexistent-car',
+        expectedReturnDate: getFutureDate(3)
+      })
+    ).rejects.toThrow('Car not found');
   });
 
-  // ERRO: Falta teste para carro indisponível
-  // it('should not create rental when car is unavailable')
+  it('should not create rental when car is unavailable', async () => {
+    const car = new Car('car-1', 'Honda Civic', 'ABC-1234', 150, false);
+    await carRepository.create(car);
 
-  // ERRO: Falta teste para usuário com aluguel em aberto
-  // it('should not create rental when user has open rental')
+    await expect(
+      createRentalUseCase.execute({
+        userId: 'user-1',
+        carId: 'car-1',
+        expectedReturnDate: getFutureDate(3)
+      })
+    ).rejects.toThrow('Car is not available');
+  });
 
-  // ERRO: Falta teste para duração mínima de 24h
-  // it('should not create rental with less than 24 hours')
+  it('should not create rental when user already has an open rental', async () => {
+    const car1 = new Car('car-1', 'Honda Civic', 'ABC-1234', 150, true);
+    const car2 = new Car('car-2', 'Toyota Corolla', 'XYZ-5678', 180, true);
+    await carRepository.create(car1);
+    await carRepository.create(car2);
+
+    await createRentalUseCase.execute({
+      userId: 'user-1',
+      carId: 'car-1',
+      expectedReturnDate: getFutureDate(3)
+    });
+
+    await expect(
+      createRentalUseCase.execute({
+        userId: 'user-1',
+        carId: 'car-2',
+        expectedReturnDate: getFutureDate(3)
+      })
+    ).rejects.toThrow('User already has an open rental');
+  });
+
+  it('should not create rental with duration less than 24 hours', async () => {
+    const car = new Car('car-1', 'Honda Civic', 'ABC-1234', 150, true);
+    await carRepository.create(car);
+
+    const returnDate = new Date();
+    returnDate.setHours(returnDate.getHours() + 12);
+
+    await expect(
+      createRentalUseCase.execute({
+        userId: 'user-1',
+        carId: 'car-1',
+        expectedReturnDate: returnDate
+      })
+    ).rejects.toThrow('Rental must have a minimum duration of 24 hours');
+  });
+
+  it('should update car availability to false after creating rental', async () => {
+    const car = new Car('car-1', 'Honda Civic', 'ABC-1234', 150, true);
+    await carRepository.create(car);
+
+    await createRentalUseCase.execute({
+      userId: 'user-1',
+      carId: 'car-1',
+      expectedReturnDate: getFutureDate(3)
+    });
+
+    const updatedCar = await carRepository.findById('car-1');
+    expect(updatedCar?.available).toBe(false);
+  });
+
+  it('should not create rental when car already has an open rental', async () => {
+    const car = new Car('car-1', 'Honda Civic', 'ABC-1234', 150, true);
+    await carRepository.create(car);
+
+    await createRentalUseCase.execute({
+      userId: 'user-1',
+      carId: 'car-1',
+      expectedReturnDate: getFutureDate(3)
+    });
+
+    await expect(
+      createRentalUseCase.execute({
+        userId: 'user-2',
+        carId: 'car-1',
+        expectedReturnDate: getFutureDate(3)
+      })
+    ).rejects.toThrow('Car is not available');
+  });
 });

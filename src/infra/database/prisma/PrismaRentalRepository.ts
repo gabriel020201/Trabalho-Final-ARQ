@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import { Rental } from '../../../domain/entities/Rental';
 import { IRentalRepository } from '../../../domain/repositories/IRentalRepository';
 
+@injectable()
 export class PrismaRentalRepository implements IRentalRepository {
   private prisma: PrismaClient;
 
@@ -10,38 +11,68 @@ export class PrismaRentalRepository implements IRentalRepository {
     this.prisma = new PrismaClient();
   }
 
-  findById(id: string): Rental {
-    const rental = this.prisma.rental.findUnique({
+  async findById(id: string): Promise<Rental | null> {
+    const rental = await this.prisma.rental.findUnique({
       where: { id }
     });
-    
-    return rental;
+
+    if (!rental) {
+      return null;
+    }
+
+    return new Rental(
+      rental.id,
+      rental.carId,
+      rental.userId,
+      rental.startDate,
+      rental.expectedReturnDate
+    );
   }
 
-  findOpenRentalByCarId(carId: string): Rental | null {
-    const rental = this.prisma.rental.findFirst({
+  async findOpenRentalByCarId(carId: string): Promise<Rental | null> {
+    const rental = await this.prisma.rental.findFirst({
       where: {
         carId,
         endDate: null
       }
     });
-    
-    return rental;
+
+    if (!rental) {
+      return null;
+    }
+
+    return new Rental(
+      rental.id,
+      rental.carId,
+      rental.userId,
+      rental.startDate,
+      rental.expectedReturnDate
+    );
   }
 
-  findOpenRentalByUserId(userId: string): Rental {
-    const rental = this.prisma.rental.findFirst({
+  async findOpenRentalByUserId(userId: string): Promise<Rental | null> {
+    const rental = await this.prisma.rental.findFirst({
       where: {
         userId,
         endDate: null
       }
     });
-    
-    return rental;
+
+    if (!rental) {
+      return null;
+    }
+
+    return new Rental(
+      rental.id,
+      rental.carId,
+      rental.userId,
+      rental.startDate,
+      rental.expectedReturnDate
+    );
   }
 
-  create(rental: Rental): void {
-    this.prisma.rental.create({
+  async create(rental: Rental): Promise<Rental> {
+    const createdRental = await this.prisma.rental.create({
       data: {
         id: rental.id,
         carId: rental.carId,
@@ -52,5 +83,13 @@ export class PrismaRentalRepository implements IRentalRepository {
         total: rental.total
       }
     });
+
+    return new Rental(
+      createdRental.id,
+      createdRental.carId,
+      createdRental.userId,
+      createdRental.startDate,
+      createdRental.expectedReturnDate
+    );
   }
 }

@@ -4,19 +4,27 @@ import { IRentalRepository } from '../../../domain/repositories/IRentalRepositor
 export class InMemoryRentalRepository implements IRentalRepository {
   private rentals: Rental[] = [];
 
-  findById(id: string): Rental {
-    return this.rentals.find(rental => rental.id === id);
+  async findById(id: string): Promise<Rental | null> {
+    const rental = this.rentals.find(rental => rental.id === id);
+    return rental || null;
   }
 
-  findOpenRentalByCarId(carId: string): Rental | null {
-    return this.rentals.find(rental => rental.carId === carId);
+  async findOpenRentalByCarId(carId: string): Promise<Rental | null> {
+    const rental = this.rentals.find(
+      rental => rental.carId === carId && rental.endDate === null
+    );
+    return rental || null;
   }
 
-  findOpenRentalByUserId(userId: string): Rental {
-    return this.rentals.find(rental => rental.userId === userId);
+  async findOpenRentalByUserId(userId: string): Promise<Rental | null> {
+    const rental = this.rentals.find(
+      rental => rental.userId === userId && rental.endDate === null
+    );
+    return rental || null;
   }
 
-  create(rental: Rental): void {
+  async create(rental: Rental): Promise<Rental> {
     this.rentals.push(rental);
+    return rental;
   }
 }

@@ -1,18 +1,18 @@
 export class Rental {
-  public id;
-  public carId: any;
-  public userId: any;
-  public startDate;
-  public expectedReturnDate;
-  public endDate;
-  public total;
+  public readonly id: string;
+  public readonly carId: string;
+  public readonly userId: string;
+  public readonly startDate: Date;
+  public readonly expectedReturnDate: Date;
+  public endDate: Date | null;
+  public total: number | null;
 
   constructor(
-    id,
-    carId,
-    userId,
-    startDate,
-    expectedReturnDate
+    id: string,
+    carId: string,
+    userId: string,
+    startDate: Date,
+    expectedReturnDate: Date
   ) {
     this.id = id;
     this.carId = carId;

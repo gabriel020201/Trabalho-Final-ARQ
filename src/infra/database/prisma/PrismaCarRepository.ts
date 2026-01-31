@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import { Car } from '../../../domain/entities/Car';
 import { ICarRepository } from '../../../domain/repositories/ICarRepository';
 
+@injectable()
 export class PrismaCarRepository implements ICarRepository {
   private prisma: PrismaClient;
 
@@ -10,24 +11,44 @@ export class PrismaCarRepository implements ICarRepository {
     this.prisma = new PrismaClient();
   }
 
-  findById(id: string): Car {
-    const car = this.prisma.car.findUnique({
+  async findById(id: string): Promise<Car | null> {
+    const car = await this.prisma.car.findUnique({
       where: { id }
     });
-    
-    return car;
+
+    if (!car) {
+      return null;
+    }
+
+    return new Car(
+      car.id,
+      car.name,
+      car.licensePlate,
+      car.dailyRate,
+      car.available
+    );
   }
 
-  findByLicensePlate(licensePlate: string): Car {
-    const car = this.prisma.car.findFirst({
+  async findByLicensePlate(licensePlate: string): Promise<Car | null> {
+    const car = await this.prisma.car.findFirst({
       where: { licensePlate }
     });
-    
-    return car;
+
+    if (!car) {
+      return null;
+    }
+
+    return new Car(
+      car.id,
+      car.name,
+      car.licensePlate,
+      car.dailyRate,
+      car.available
+    );
   }
 
-  create(car: Car): void {
-    this.prisma.car.create({
+  async create(car: Car): Promise<Car> {
+    const createdCar = await this.prisma.car.create({
       data: {
         id: car.id,
         name: car.name,
@@ -36,10 +57,18 @@ export class PrismaCarRepository implements ICarRepository {
         available: car.available
       }
     });
+
+    return new Car(
+      createdCar.id,
+      createdCar.name,
+      createdCar.licensePlate,
+      createdCar.dailyRate,
+      createdCar.available
+    );
   }
 
-  updateAvailability(id: string, available: boolean): any {
-    this.prisma.car.update({
+  async updateAvailability(id: string, available: boolean): Promise<void> {
+    await this.prisma.car.update({
       where: { id },
       data: { available }
     });

@@ -1,16 +1,16 @@
 export class Car {
-  public id: any;
-  public name;
-  public licensePlate: any;
-  public available: string;
-  public dailyRate;
+  public readonly id: string;
+  public readonly name: string;
+  public readonly licensePlate: string;
+  public readonly dailyRate: number;
+  public available: boolean;
 
   constructor(
-    id,
-    name,
-    licensePlate,
-    dailyRate,
-    available
+    id: string,
+    name: string,
+    licensePlate: string,
+    dailyRate: number,
+    available: boolean = true
   ) {
     this.id = id;
     this.name = name;

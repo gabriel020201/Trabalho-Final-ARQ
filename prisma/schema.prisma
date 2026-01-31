@@ -1,5 +1,5 @@
 // Schema do Prisma para RentX
-// ERRO: Campos com tipos incorretos e relacionamentos mal definidos
+// Configuração do banco de dados SQLite
 
 generator client {
   provider = "prisma-client-js"
@@ -13,23 +13,23 @@ datasource db {
 model Car {
   id           String   @id @default(uuid())
   name         String
-  licensePlate String   // ERRO: Falta @unique
-  dailyRate    Int      // ERRO: Deveria ser Float
-  available    String   // ERRO: Deveria ser Boolean @default(true)
+  licensePlate String   @unique
+  dailyRate    Float
+  available    Boolean  @default(true)
   createdAt    DateTime @default(now())
   
-  // ERRO: Relacionamento faltando
+  rentals      Rental[]
 }
 
 model Rental {
-  id                 String   @id @default(uuid())
+  id                 String    @id @default(uuid())
   carId              String
   userId             String
-  startDate          DateTime @default(now())
-  expectedReturnDate String   // ERRO: Deveria ser DateTime
-  endDate            String?  // ERRO: Deveria ser DateTime?
-  total              String?  // ERRO: Deveria ser Float?
-  createdAt          DateTime @default(now())
+  startDate          DateTime  @default(now())
+  expectedReturnDate DateTime
+  endDate            DateTime?
+  total              Float?
+  createdAt          DateTime  @default(now())
   
-  // ERRO: Relacionamento com Car faltando
+  car                Car       @relation(fields: [carId], references: [id])
 }

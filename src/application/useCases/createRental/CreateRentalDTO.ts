@@ -1,5 +1,5 @@
 export interface CreateRentalDTO {
-  userId;
-  carId;
-  expectedReturnDate;
+  userId: string;
+  carId: string;
+  expectedReturnDate: Date;
 }
